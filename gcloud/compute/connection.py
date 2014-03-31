@@ -105,17 +105,29 @@ class Connection(connection.Connection):
   def get_instance(self, instance_name, zone):
     instance = self.new_instance(instance_name, zone)
     response = self.api_request(method='GET', path=instance.path)
-    print json.dumps(response, indent=2)
     return Instance.from_dict(response, connection=self)
 
   def reset_instance(self, instance):
     self.api_request(method='POST', path=instance.path + 'reset')
     return True
 
-  # TODO: Add instance and error handling.
   def new_instance(self, instance, zone):
     if isinstance(instance, basestring):
       return Instance(connection=self, name=instance, zone=zone)
+
+    if isinstance(instance, Instance):
+      return instance
+
+    # Support Python 2 and 3.
+    try:
+      string_type = basestring
+    except NameError:
+      string_type = str
+
+    if isinstance(instance, string_type):
+      return Instance(connection=self, name=instance, zone=zone)
+
+    raise TypeError('Invalid instance: %s' % instance)
 
   def get_disk(self, disk_name, zone):
     disk = self.new_disk(disk_name, zone)
@@ -123,11 +135,13 @@ class Connection(connection.Connection):
                                 path=disk.path)
     return Disk.from_dict(response, connection=self)
 
+  # TODO: Return a list of disk objects.
   def get_aggregatedDiskList(self):
     response = self.api_request(method='GET', path=('projects/' +
                                 self.project_name + '/aggregated/disks'))
     print json.dumps(response, indent=2)
 
+  # TODO: Return a list of disk objects.
   def get_diskList(self, zone):
     response = self.api_request(method='GET',
                                 path='projects/%s/zones/%s/disks' %
@@ -152,4 +166,16 @@ class Connection(connection.Connection):
     return True
 
   def new_disk(self, disk, zone):
-    return Disk(connection=self, name=disk, zone=zone)
+    if isinstance(disk, Disk):
+      return disk
+
+    # Support Python 2 and 3.
+    try:
+      string_type = basestring
+    except NameError:
+      string_type = str
+
+    if isinstance(disk, string_type):
+      return Disk(connection=self, name=disk, zone=zone)
+
+    raise TypeError('Invalid disk: %s' % disk)

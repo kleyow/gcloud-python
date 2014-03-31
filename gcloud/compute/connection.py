@@ -4,6 +4,7 @@ import urllib
 
 from gcloud import connection
 from gcloud.compute import exceptions
+from gcloud.compute.disk import Disk
 from gcloud.compute.instance import Instance
 
 
@@ -76,7 +77,7 @@ class Connection(connection.Connection):
     url = self.build_api_url(path=path, query_params=query_params,
                              api_base_url=api_base_url,
                              api_version=api_version)
-    print url
+
     # Making the executive decision that any dictionary
     # data will be sent properly as JSON.
     if data and isinstance(data, dict):
@@ -117,10 +118,10 @@ class Connection(connection.Connection):
       return Instance(connection=self, name=instance, zone=zone)
 
   def get_disk(self, disk_name, zone):
+    disk = self.new_disk(disk_name, zone)
     response = self.api_request(method='GET',
-                                path='projects/%s/zones/%s/disks/%s' %
-                                (self.project_name, zone, disk_name))
-    print json.dumps(response, indent=2)
+                                path=disk.path)
+    return Disk.from_dict(response, connection=self)
 
   def get_aggregatedDiskList(self):
     response = self.api_request(method='GET', path=('projects/' +
@@ -133,20 +134,22 @@ class Connection(connection.Connection):
                                 (self.project_name, zone))
     print json.dumps(response, indent=2)
 
-
   def delete_disk(self, disk_name, zone):
     response = self.api_request(method='DELETE',
                                 path='projects/%s/zones/%s/disks/%s' %
                                 (self.project_name, zone, disk_name))
-    print json.dumps(response, indent=2)
+    return True
 
   def create_snapshot(self, disk_name, zone, snapshot_name=None):
     if not snapshot_name:
-      snapshot_name = disk_name + str(datetime.utcnow().strftime('%Y%m%d%H%M%S'))
+      snapshot_name = disk_name + datetime.utcnow().strftime('%Y%m%d%H%M%S')
 
     response = self.api_request(
         method='POST',
         path='projects/%s/zones/%s/disks/%s/createSnapshot' %
         (self.project_name, zone, disk_name),
         data={'name': snapshot_name})
-    print json.dumps(response, indent=2)
+    return True
+
+  def new_disk(self, disk, zone):
+    return Disk(connection=self, name=disk, zone=zone)

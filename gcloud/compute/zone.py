@@ -12,6 +12,3 @@ class Zone(object):
     self.region = region
     self.selfLink = selfLink
     self.status = status
-
-
-

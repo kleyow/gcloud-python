@@ -27,11 +27,11 @@ class Disk(object):
   def from_dict(cls, disk_dict, connection=None):
 
     return cls(connection=connection,
-               create_time=disk_dict['creationTimestamp'],
-               description=disk_dict['description'],
+               create_time=disk_dict.get('creationTimestamp', None),
+               description=disk_dict.get('description', None),
                id=disk_dict['id'],
                name=disk_dict['name'],
-               size=disk_dict['sizeGb'],
+               size=disk_dict.get('sizeGb', None),
                status=disk_dict['status'],
                zone=disk_dict['zone'].split('/').pop())
 
@@ -43,3 +43,4 @@ class Disk(object):
 
   def snapshot(self):
     return self.connection.create_snapshot(self.name, self.zone)
+

@@ -77,7 +77,7 @@ class Connection(connection.Connection):
     url = self.build_api_url(path=path, query_params=query_params,
                              api_base_url=api_base_url,
                              api_version=api_version)
-
+    print url
     # Making the executive decision that any dictionary
     # data will be sent properly as JSON.
     if data and isinstance(data, dict):
@@ -128,6 +128,15 @@ class Connection(connection.Connection):
       return Instance(connection=self, name=instance, zone=zone)
 
     raise TypeError('Invalid instance: %s' % instance)
+
+
+  def create_disk(self, disk_name, size, zone):
+    response = self.api_request(method='POST',
+                                path=('projects/%s/zones/%s/disks' %
+                                      (self.project_name, zone)),
+                                data={'name': disk_name, 'sizeGb': size})
+    print json.dumps(response, indent=2)
+    return True
 
   def get_disk(self, disk_name, zone):
     disk = self.new_disk(disk_name, zone)

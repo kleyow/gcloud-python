@@ -18,5 +18,6 @@ connection = demo.get_connection()
 # connection.delete_disk('disk-1','us-central1-b')
 # connection.create_snapshot('gcloud-computeengine-instance','us-central1-b')
 # disk = connection.get_disk('gcloud-computeengine-instance','us-central1-b')
-# disk.snapshot()
+#disk = connection.create_disk('mytestdisk2', '12', 'us-central1-b')
+#disk.snapshot()
 # Thats it for now more is coming soon

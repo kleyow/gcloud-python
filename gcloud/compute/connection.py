@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import urllib
 
@@ -75,7 +76,7 @@ class Connection(connection.Connection):
     url = self.build_api_url(path=path, query_params=query_params,
                              api_base_url=api_base_url,
                              api_version=api_version)
-
+    print url
     # Making the executive decision that any dictionary
     # data will be sent properly as JSON.
     if data and isinstance(data, dict):
@@ -103,6 +104,7 @@ class Connection(connection.Connection):
   def get_instance(self, instance_name, zone):
     instance = self.new_instance(instance_name, zone)
     response = self.api_request(method='GET', path=instance.path)
+    print json.dumps(response, indent=2)
     return Instance.from_dict(response, connection=self)
 
   def reset_instance(self, instance):
@@ -113,3 +115,38 @@ class Connection(connection.Connection):
   def new_instance(self, instance, zone):
     if isinstance(instance, basestring):
       return Instance(connection=self, name=instance, zone=zone)
+
+  def get_disk(self, disk_name, zone):
+    response = self.api_request(method='GET',
+                                path='projects/%s/zones/%s/disks/%s' %
+                                (self.project_name, zone, disk_name))
+    print json.dumps(response, indent=2)
+
+  def get_aggregatedDiskList(self):
+    response = self.api_request(method='GET', path=('projects/' +
+                                self.project_name + '/aggregated/disks'))
+    print json.dumps(response, indent=2)
+
+  def get_diskList(self, zone):
+    response = self.api_request(method='GET',
+                                path='projects/%s/zones/%s/disks' %
+                                (self.project_name, zone))
+    print json.dumps(response, indent=2)
+
+
+  def delete_disk(self, disk_name, zone):
+    response = self.api_request(method='DELETE',
+                                path='projects/%s/zones/%s/disks/%s' %
+                                (self.project_name, zone, disk_name))
+    print json.dumps(response, indent=2)
+
+  def create_snapshot(self, disk_name, zone, snapshot_name=None):
+    if not snapshot_name:
+      snapshot_name = disk_name + str(datetime.utcnow().strftime('%Y%m%d%H%M%S'))
+
+    response = self.api_request(
+        method='POST',
+        path='projects/%s/zones/%s/disks/%s/createSnapshot' %
+        (self.project_name, zone, disk_name),
+        data={'name': snapshot_name})
+    print json.dumps(response, indent=2)

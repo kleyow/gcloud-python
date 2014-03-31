@@ -7,14 +7,6 @@ class Instance(object):
 
   @classmethod
   def from_dict(cls, instance_dict, connection=None):
-    """Construct a new bucket from a dictionary of data from Cloud Storage.
-
-    :type bucket_dict: dict
-    :param bucket_dict: The dictionary of data to construct a bucket from.
-
-    :rtype: :class:`Bucket`
-    :returns: A bucket constructed from the data provided.
-    """
 
     return cls(connection=connection, name=instance_dict['name'],
                zone=instance_dict['zone'].split('/').pop())

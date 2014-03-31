@@ -9,15 +9,6 @@ from gcloud.compute.instance import Instance
 
 
 class Connection(connection.Connection):
-  """A connection to the Google Compute Engine via the Protobuf API.
-
-  This class should understand only the basic types (and protobufs)
-  in method arguments, however should be capable of returning advanced types.
-
-  :type credentials: :class:`gcloud.credentials.Credentials`
-  :param credentials: The OAuth2 Credentials to use for this connection.
-  """
-
   API_BASE_URL = 'https://www.googleapis.com'
   """The base of the API call URL."""
 
@@ -129,7 +120,6 @@ class Connection(connection.Connection):
 
     raise TypeError('Invalid instance: %s' % instance)
 
-
   def create_disk(self, disk_name, size, zone):
     response = self.api_request(method='POST',
                                 path=('projects/%s/zones/%s/disks' %
@@ -158,16 +148,16 @@ class Connection(connection.Connection):
     print json.dumps(response, indent=2)
 
   def delete_disk(self, disk_name, zone):
-    response = self.api_request(method='DELETE',
-                                path='projects/%s/zones/%s/disks/%s' %
-                                (self.project_name, zone, disk_name))
+    self.api_request(method='DELETE',
+                     path='projects/%s/zones/%s/disks/%s' %
+                     (self.project_name, zone, disk_name))
     return True
 
   def create_snapshot(self, disk_name, zone, snapshot_name=None):
     if not snapshot_name:
       snapshot_name = disk_name + datetime.utcnow().strftime('%Y%m%d%H%M%S')
 
-    response = self.api_request(
+    self.api_request(
         method='POST',
         path='projects/%s/zones/%s/disks/%s/createSnapshot' %
         (self.project_name, zone, disk_name),

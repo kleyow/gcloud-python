@@ -43,4 +43,3 @@ class Disk(object):
 
   def snapshot(self):
     return self.connection.create_snapshot(self.name, self.zone)
-
